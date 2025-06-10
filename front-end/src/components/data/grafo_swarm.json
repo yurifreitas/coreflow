@@ -1,0 +1,40 @@
+{
+  "nodes": [
+    {
+      "id": "start",
+      "type": "agent",
+      "data": { "label": "Entrada do Usuário" },
+      "position": { "x": 50, "y": 50 }
+    },
+    {
+      "id": "router",
+      "type": "router",
+      "data": { "label": "Router Principal", "description": "Divide lógica" },
+      "position": { "x": 250, "y": 50 }
+    },
+    {
+      "id": "swarm1",
+      "type": "swarm",
+      "data": { "agents": ["ExtratorData", "ValidadorIntenção", "LLM-1"] },
+      "position": { "x": 450, "y": 50 }
+    },
+    {
+      "id": "resultado1",
+      "type": "agent",
+      "data": { "label": "Fusão de Resultados" },
+      "position": { "x": 650, "y": 50 }
+    },
+    {
+      "id": "supervisor",
+      "type": "supervisor",
+      "data": { "state": "monitorando swarm" },
+      "position": { "x": 850, "y": 50 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "start", "target": "router" },
+    { "id": "e2", "source": "router", "target": "swarm1" },
+    { "id": "e3", "source": "swarm1", "target": "resultado1" },
+    { "id": "e4", "source": "resultado1", "target": "supervisor" }
+  ]
+}

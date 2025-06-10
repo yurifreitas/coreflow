@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "entrada",
+      "type": "agent",
+      "data": { "label": "Consulta Extrato" },
+      "position": { "x": 50, "y": 100 }
+    },
+    {
+      "id": "valida",
+      "type": "agent",
+      "data": { "label": "Valida Datas" },
+      "position": { "x": 250, "y": 100 }
+    },
+    {
+      "id": "subgraph_router",
+      "type": "router",
+      "data": { "label": "Subgrafo Router", "description": "Divide consultas" },
+      "position": { "x": 450, "y": 100 }
+    },
+    {
+      "id": "redis",
+      "type": "agent",
+      "data": { "label": "Consulta Redis" },
+      "position": { "x": 650, "y": 50 }
+    },
+    {
+      "id": "vector",
+      "type": "agent",
+      "data": { "label": "Consulta Vetor" },
+      "position": { "x": 650, "y": 150 }
+    },
+    {
+      "id": "merge",
+      "type": "agent",
+      "data": { "label": "Combina Resultados" },
+      "position": { "x": 850, "y": 100 }
+    },
+    {
+      "id": "supervisor_sub",
+      "type": "supervisor",
+      "data": { "state": "em execução" },
+      "position": { "x": 1050, "y": 100 }
+    }
+  ],
+  "edges": [
+    { "id": "s1", "source": "entrada", "target": "valida" },
+    { "id": "s2", "source": "valida", "target": "subgraph_router" },
+    { "id": "s3", "source": "subgraph_router", "target": "redis" },
+    { "id": "s4", "source": "subgraph_router", "target": "vector" },
+    { "id": "s5", "source": "redis", "target": "merge" },
+    { "id": "s6", "source": "vector", "target": "merge" },
+    { "id": "s7", "source": "merge", "target": "supervisor_sub" }
+  ]
+}
