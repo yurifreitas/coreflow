@@ -14,25 +14,6 @@ const handleColors: Record<string, string> = {
   resposta: '#1abc9c',
 };
 
-const handlePositions: Record<string, React.CSSProperties> = {
-  input: {
-    left: -10,
-    top: '30%',
-    transform: 'translateY(-50%)',
-  },
-  output: {
-    right: -10,
-    top: '30%',
-    transform: 'translateY(-50%)',
-  },
-  prompt: {
-    left: -10,
-    top: '70%',
-    transform: 'translateY(-50%)',
-  },
-
-};
-
 export function NodeHandles({ node }: Props) {
   const {
     setTemporaryEdge,
@@ -80,11 +61,34 @@ export function NodeHandles({ node }: Props) {
     window.addEventListener('pointerup', up);
   };
 
-  // Condicional por tipo do nó
+  // Define os handles por tipo de nó
   const isAgent = node.type === 'agent';
   const handles = isAgent
     ? ['input', 'output', 'prompt']
     : ['input', 'output'];
+
+  // Estilos dinâmicos alinhados verticalmente no centro
+  const getHandleStyle = (handleType: string): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: 'absolute',
+      width: 14,
+      height: 14,
+      borderRadius: '50%',
+      backgroundColor: handleColors[handleType] || '#888',
+      cursor: 'pointer',
+      zIndex: 10,
+      top: '50%',
+      transform: 'translateY(-50%)',
+    };
+
+    if (handleType === 'input' || handleType === 'prompt') {
+      base.left = -10;
+    } else if (handleType === 'output' || handleType === 'resposta') {
+      base.right = -10;
+    }
+
+    return base;
+  };
 
   return (
     <>
@@ -94,16 +98,7 @@ export function NodeHandles({ node }: Props) {
           data-node-id={node.id}
           data-handle={handleType}
           onPointerDown={handlePointerDown(handleType)}
-          style={{
-            position: 'absolute',
-            width: 14,
-            height: 14,
-            borderRadius: '50%',
-            backgroundColor: handleColors[handleType] || '#888',
-            cursor: 'pointer',
-            zIndex: 10,
-            ...handlePositions[handleType],
-          }}
+          style={getHandleStyle(handleType)}
         />
       ))}
     </>

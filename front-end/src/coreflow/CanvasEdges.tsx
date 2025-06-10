@@ -13,22 +13,22 @@ type Props = {
 export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
   const { dragging } = useConnections();
 
-  const getHandlePos = (id: string, side: 'input' | 'output') => {
-    const node = nodes.find(n => n.id === id);
-    if (!node) return { x: 0, y: 0 };
+  // 🔧 Alinhamento real com base no handle DOM
+  const getHandleCenter = (nodeId: string, side: string) => {
+    const el = document.querySelector(
+      `[data-node-id="${nodeId}"][data-handle="${side}"]`
+    ) as HTMLElement | null;
 
-    const width = node.style?.width ?? 160;
-    const height = node.style?.height ?? 60;
+    if (!el) return { x: 0, y: 0 };
 
-    const x = node.position.x + (side === 'output' ? width : 0);
-    const y = node.position.y + height / 2;
-
+    const rect = el.getBoundingClientRect();
     return {
-      x: x * scale + offset.x,
-      y: y * scale + offset.y,
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
     };
   };
 
+  // Geração de curva (bezier)
   const genPath = (a: { x: number; y: number }, b: { x: number; y: number }) => {
     const dx = Math.max(Math.abs(b.x - a.x) * 0.5, 40);
     return `M ${a.x},${a.y} C ${a.x + dx},${a.y} ${b.x - dx},${b.y} ${b.x},${b.y}`;
@@ -54,8 +54,8 @@ export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
 
       {/* Edges reais */}
       {edges.map((edge) => {
-        const from = getHandlePos(edge.source, 'output');
-        const to = getHandlePos(edge.target, 'input');
+        const from = getHandleCenter(edge.source, edge.sourceHandle || 'output');
+        const to = getHandleCenter(edge.target, edge.targetHandle || 'input');
         return (
           <path
             key={edge.id}
@@ -68,11 +68,11 @@ export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
         );
       })}
 
-      {/* Linha temporária */}
+      {/* Linha temporária durante drag */}
       {dragging && (
         <path
           d={genPath(
-            getHandlePos(dragging.from, dragging.fromSide),
+            getHandleCenter(dragging.from, dragging.fromSide),
             dragging.toPos
           )}
           stroke="gray"
