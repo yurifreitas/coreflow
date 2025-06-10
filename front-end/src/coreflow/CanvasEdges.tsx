@@ -1,4 +1,3 @@
-// coreflow/CanvasEdges.tsx
 import React from 'react';
 import { useFlow } from './useFlow';
 import type { FlowNode, FlowEdge } from './types';
@@ -25,7 +24,7 @@ export default function CanvasEdges({ nodes, edges }: Props) {
         top: 0,
         left: 0,
         pointerEvents: 'none',
-        zIndex: 9999, // 🔥 Fica por cima de tudo
+        zIndex: 9999,
       }}
     >
       <defs>
@@ -38,6 +37,7 @@ export default function CanvasEdges({ nodes, edges }: Props) {
         const from = handlePositions[edge.source]?.[edge.sourceHandle || 'output'];
         const to = handlePositions[edge.target]?.[edge.targetHandle || 'input'];
         if (!from || !to) return null;
+
         return (
           <path
             key={edge.id}
@@ -50,15 +50,24 @@ export default function CanvasEdges({ nodes, edges }: Props) {
         );
       })}
 
-      {draggingFrom && tempTargetPos && handlePositions[draggingFrom]?.output && (
-        <path
-          d={genPath(handlePositions[draggingFrom].output!, tempTargetPos)}
-          stroke="gray"
-          strokeWidth={2}
-          strokeDasharray="4"
-          fill="none"
-        />
-      )}
+      {/* Linha temporária durante o arrasto */}
+      {draggingFrom && tempTargetPos && (() => {
+        const parts = draggingFrom.split(':');
+        const fromId = parts[0];
+        const handle = parts[1] as 'input' | 'output' | 'prompt' | 'resposta';
+        const from = handlePositions[fromId]?.[handle];
+        if (!from) return null;
+
+        return (
+          <path
+            d={genPath(from, tempTargetPos)}
+            stroke="gray"
+            strokeWidth={2}
+            strokeDasharray="4"
+            fill="none"
+          />
+        );
+      })()}
     </svg>
   );
 }
