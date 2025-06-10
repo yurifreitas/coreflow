@@ -78,8 +78,18 @@ export const sampleNodes: FlowNode[] = [
     parentId: 'supervisor_global',
     extent: 'parent',
   },
-
-  // === Supervisor Global 2 (posicionado abaixo do outro grupo) ===
+  {
+    id: 'modelo2',
+    type: 'modelo',
+    label: 'modelo',
+    position: { x: 0, y: 400 }, // 👈 diferente agora!
+     data: {
+    inputs: [
+      { name: 'nome', type: 'text', placeholder: 'Digite o modelo nome' },
+      
+    ],
+  },
+  },
   {
     id: 'supervisor_global2',
     type: 'group',
@@ -105,6 +115,8 @@ export const sampleNodes: FlowNode[] = [
       { name: 'detalhes', type: 'textarea', placeholder: 'Expanda o contexto aqui' },
     ],
   },
+  
+
 }
 ];
 

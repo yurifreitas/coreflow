@@ -4,7 +4,7 @@ export type FlowNode = {
   position: { x: number; y: number };
 
   // Tipos de node
-  type?: 'default' | 'group' | 'agent' | 'input' | 'output' | 'prompt';
+  type?: 'default' | 'group' | 'agent' | 'input' | 'output' | 'prompt' | 'model';
 
   // Estilo visual
   style?: React.CSSProperties;

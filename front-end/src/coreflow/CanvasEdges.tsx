@@ -1,34 +1,16 @@
-// CanvasEdges.tsx
+// coreflow/CanvasEdges.tsx
 import React from 'react';
+import { useFlow } from './useFlow';
 import type { FlowNode, FlowEdge } from './types';
-import { useConnections } from './useConnections';
 
 type Props = {
   nodes: FlowNode[];
   edges: FlowEdge[];
-  scale: number;
-  offset: { x: number; y: number };
 };
 
-export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
-  const { dragging } = useConnections();
+export default function CanvasEdges({ nodes, edges }: Props) {
+  const { handlePositions, draggingFrom, tempTargetPos } = useFlow();
 
-  // 🔧 Alinhamento real com base no handle DOM
-  const getHandleCenter = (nodeId: string, side: string) => {
-    const el = document.querySelector(
-      `[data-node-id="${nodeId}"][data-handle="${side}"]`
-    ) as HTMLElement | null;
-
-    if (!el) return { x: 0, y: 0 };
-
-    const rect = el.getBoundingClientRect();
-    return {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
-  };
-
-  // Geração de curva (bezier)
   const genPath = (a: { x: number; y: number }, b: { x: number; y: number }) => {
     const dx = Math.max(Math.abs(b.x - a.x) * 0.5, 40);
     return `M ${a.x},${a.y} C ${a.x + dx},${a.y} ${b.x - dx},${b.y} ${b.x},${b.y}`;
@@ -43,7 +25,7 @@ export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
         top: 0,
         left: 0,
         pointerEvents: 'none',
-        zIndex: 1,
+        zIndex: 9999, // 🔥 Fica por cima de tudo
       }}
     >
       <defs>
@@ -52,10 +34,10 @@ export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
         </marker>
       </defs>
 
-      {/* Edges reais */}
       {edges.map((edge) => {
-        const from = getHandleCenter(edge.source, edge.sourceHandle || 'output');
-        const to = getHandleCenter(edge.target, edge.targetHandle || 'input');
+        const from = handlePositions[edge.source]?.[edge.sourceHandle || 'output'];
+        const to = handlePositions[edge.target]?.[edge.targetHandle || 'input'];
+        if (!from || !to) return null;
         return (
           <path
             key={edge.id}
@@ -68,13 +50,9 @@ export default function CanvasEdges({ nodes, edges, scale, offset }: Props) {
         );
       })}
 
-      {/* Linha temporária durante drag */}
-      {dragging && (
+      {draggingFrom && tempTargetPos && handlePositions[draggingFrom]?.output && (
         <path
-          d={genPath(
-            getHandleCenter(dragging.from, dragging.fromSide),
-            dragging.toPos
-          )}
+          d={genPath(handlePositions[draggingFrom].output!, tempTargetPos)}
           stroke="gray"
           strokeWidth={2}
           strokeDasharray="4"
